@@ -1,0 +1,15 @@
+.:1053 {
+    errors
+    bind 127.0.0.1
+    bufsize 1232
+    rewrite name regex .*pcdn.*\.biliapi\.net upos-sz-mirrorali.bilivideo.com
+    rewrite name regex .*mcdn\.bilivideo\.cn upos-sz-mirrorali.bilivideo.com
+    template IN ANY douyucdn.cn {
+        match "^stun\d*.douyucdn\.cn\.$"
+        rcode NOERROR
+        fallthrough
+    }
+    forward . 223.5.5.5
+    cache
+    minimal
+}

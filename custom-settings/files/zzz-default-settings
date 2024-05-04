@@ -1,0 +1,51 @@
+#!/bin/sh
+
+#Set default lang
+uci set luci.main.lang='zh_cn'
+uci set luci.sauth.sessiontime='0'
+uci commit luci
+
+#Timezone
+uci set system.@system[0].zonename=Asia/Shanghai
+uci set system.@system[0].timezone=CST-8
+uci delete system.ntp.server
+uci add_list system.ntp.server="ntp.ntsc.ac.cn"
+uci commit system
+
+#uhttpd
+uci delete uhttpd.main.listen_https
+uci delete uhttpd.main.cert
+uci delete uhttpd.main.key
+uci set uhttpd.main.rfc1918_filter=0
+uci set uhttpd.main.redirect_https=0
+uci set uhttpd.main.http_keepalive=0
+uci set uhttpd.main.tcp_keepalive=0
+uci set uhttpd.main.script_timeout=65535
+uci set uhttpd.main.script_network_timeout=65535
+uci commit uhttpd
+/etc/init.d/uhttpd restart
+
+#Defalut lan IP
+uci set network.lan.ipaddr=192.168.99.1
+
+#Delete ula
+uci delete network.globals.ula_prefix
+uci commit network
+/etc/init.d/network restart
+
+#dnsmasq
+sed -i '/log-facility/d' /etc/dnsmasq.conf
+echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
+
+#Others
+[ ! -f '/usr/bin/ip' ] && [ -f '/sbin/ip' ] && ln -sf /sbin/ip /usr/bin/ip
+opkg flag hold luci-app-firewall
+opkg flag hold firewall
+opkg flag hold dnsmasq-full
+sed -i 's/downloads.openwrt.org/mirrors.ustc.edu.cn\/openwrt/g' /etc/opkg/distfeeds.conf
+
+#Flush LuCI cache
+rm -rf /tmp/luci-modulecache
+rm -f /tmp/luci-indexcache
+
+exit 0
