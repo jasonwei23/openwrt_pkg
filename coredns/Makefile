@@ -16,7 +16,7 @@ PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/coredns/coredns
 GO_PKG_LDFLAGS:=-s -w
-GO_PKG_GO_GENERATE:=1
+#GO_PKG_GO_GENERATE:=1
 
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
@@ -39,8 +39,13 @@ define Package/coredns/install
 endef
 
 define Build/Prepare
-	$(call Build/Prepare/Default)
-	$(CP) $(CURDIR)/plugin.cfg $(PKG_BUILD_DIR)/plugin.cfg
+	( \
+		$(call Build/Prepare/Default) ; \
+		$(CP) $(CURDIR)/plugin.cfg $(PKG_BUILD_DIR)/plugin.cfg ; \
+		cd $(PKG_BUILD_DIR) ; \
+		go generate coredns.go ; \
+		go get ; \
+	)
 endef
 
 define Package/coredns/description
