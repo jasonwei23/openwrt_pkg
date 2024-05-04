@@ -26,22 +26,11 @@ start_service() {
 	procd_close_instance
 }
 
-stop_service() {
-	local pid="$(pidof "$PROG")"
-	if [ -n "$pid" ]; then
-		kill -15 "$pid"
-		echo "stopped $CONF process."
-	else
-		echo "$CONF process is not running!"
-	fi
+reload_service() {
+	stop
+	start
 }
 
 service_triggers() {
 	procd_add_reload_trigger "$CONF"
-}
-
-restart() {
-	stop
-	sleep 1
-	start
 }
