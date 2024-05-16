@@ -1,5 +1,4 @@
 .:1053 {
-    errors
     bind 127.0.0.1
     bufsize 1232
     template IN ANY biliapi.net {
